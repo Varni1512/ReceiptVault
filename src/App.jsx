@@ -1,0 +1,56 @@
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import AuthPage from './pages/AuthPage';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ScrollToTop from './components/ScrollToTop';
+
+// Placeholder components (You can move these to separate files later)
+const Home = () => <div className="p-20 text-slate-800 font-bold">Home Page Content</div>;
+const Receipts = () => <div className="p-20 text-slate-800 font-bold">My Receipts / My Bills</div>;
+const Warranty = () => <div className="p-20 text-slate-800 font-bold">Warranty Hub Center</div>;
+const Support = () => <div className="p-20 text-slate-800 font-bold">Support & Help Desk</div>;
+const Profile = () => <div className="p-20 text-slate-800 font-bold">User Profile Settings</div>;
+const Alerts = () => <div className="p-20 text-slate-800 font-bold">Notification Alerts</div>;
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+
+        {/* 🔓 Auth route without Navbar & Footer */}
+        <Route path="/signin" element={<AuthPage />} />
+
+        {/* 🌐 All other routes with Navbar & Footer */}
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen flex flex-col bg-[#F5F7FA]">
+              <Navbar />
+              <ScrollToTop />
+              <main className="flex-grow pt-20">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/my-receipts" element={<Receipts />} />
+                  <Route path="/warranty-hub" element={<Warranty />} />
+                  <Route path="/support" element={<Support />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/alerts" element={<Warranty />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          }
+        />
+
+      </Routes>
+    </Router>
+  );
+};
+
+
+export default App
