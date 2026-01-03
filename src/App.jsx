@@ -6,6 +6,7 @@ import AuthPage from './pages/AuthPage';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ScrollToTop from './components/ScrollToTop';
+import MyReceipts from './pages/MyReceipts';
 
 // Placeholder components (You can move these to separate files later)
 const Home = () => <div className="p-20 text-slate-800 font-bold">Home Page Content</div>;
@@ -33,7 +34,7 @@ const App = () => {
               <main className="flex-grow pt-20">
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/my-receipts" element={<Receipts />} />
+                  <Route path="/receipts" element={<MyReceipts />} />
                   <Route path="/warranty-hub" element={<Warranty />} />
                   <Route path="/support" element={<Support />} />
                   <Route path="/profile" element={<Profile />} />

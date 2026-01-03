@@ -38,7 +38,7 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Home', href: '/' },
-        { name: 'My Receipts', href: '/my-receipts' },
+        { name: 'My Receipts', href: '/receipts' },
         { name: 'Warranty Hub', href: '/warranty-hub' },
         { name: 'Support', href: '/support' },
     ];
