@@ -1,18 +1,35 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; // Added useEffect
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Download, Maximize2, X, Upload, 
-  FileText, Calendar, Clock, ChevronLeft, ChevronRight, CheckCircle2 
+  Calendar, Clock, ChevronLeft, ChevronRight, CheckCircle2 
 } from 'lucide-react';
+import { auth } from '../firebase'; // Ensure this path matches your Firebase config
+import { onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const MyReceipts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [previewDoc, setPreviewDoc] = useState(null); // State for full screen view
+  const [previewDoc, setPreviewDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [docName, setDocName] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // Track auth state
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
   
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [receipts, setReceipts] = useState(Array.from({ length: 10 }, (_, i) => ({
     id: i + 1,
     name: `Record_${i + 1}`,
@@ -33,7 +50,16 @@ const MyReceipts = () => {
     }
   };
 
-  // Download Logic
+  // Protected Upload Toggle
+  const toggleUploadModal = () => {
+    if (!currentUser) {
+      alert("You must be logged in to upload documents.");
+      navigate('/signin'); // Redirect to login page
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
   const handleDownload = (imgUrl, fileName) => {
     const link = document.createElement('a');
     link.href = imgUrl;
@@ -45,6 +71,7 @@ const MyReceipts = () => {
 
   const handleUploadSubmit = (e) => {
     e.preventDefault();
+    if (!currentUser) return; // Guard clause
     if (!docName.trim()) return;
 
     const now = new Date();
@@ -73,7 +100,7 @@ const MyReceipts = () => {
             <p className="text-slate-500 text-sm mt-1">Manage and store your digital purchase proofs.</p>
           </div>
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={toggleUploadModal}
             className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gradient-to-br from-sky-400 via-blue-600 to-blue-900 cursor-pointer transition-all shadow-lg active:scale-95"
           >
             <Plus size={20} />
@@ -89,7 +116,6 @@ const MyReceipts = () => {
                 <div className="h-56 bg-slate-100 relative overflow-hidden">
                   <img src={receipt.img} alt="receipt" className="w-full h-full object-cover" />
                   
-                  {/* CARD HOVER BUTTONS */}
                   <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
                     <button 
                       onClick={() => setPreviewDoc(receipt)}
@@ -132,7 +158,7 @@ const MyReceipts = () => {
 
         {/* UPLOAD MODAL */}
         <AnimatePresence>
-          {isModalOpen && (
+          {isModalOpen && currentUser && ( // Added currentUser check
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
               <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl p-8">
@@ -169,7 +195,6 @@ const MyReceipts = () => {
                 initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
                 className="relative w-full max-w-5xl h-[85vh] bg-white rounded-2xl overflow-hidden flex flex-col shadow-2xl"
               >
-                {/* Preview Header */}
                 <div className="p-4 bg-white border-b flex justify-between items-center px-6">
                   <h2 className="font-bold text-slate-900 truncate pr-10">{previewDoc.name}</h2>
                   <div className="flex items-center gap-3">
@@ -187,9 +212,7 @@ const MyReceipts = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Preview Body */}
-                <div className="flex-1 bg-slate-200 overflow-auto flex items-center justify-center p-6">
+                <div className="flex-1 bg-slate-200 overflow-auto flex items-center justify-center p-6 text-slate-900">
                   <img src={previewDoc.img} alt="preview" className="max-w-full max-h-full shadow-lg rounded-sm" />
                 </div>
               </motion.div>

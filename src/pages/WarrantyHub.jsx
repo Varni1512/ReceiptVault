@@ -1,9 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { auth } from '../firebase'; 
+import { onAuthStateChanged } from 'firebase/auth'; 
 import { 
   ShieldCheck, Plus, Maximize2, Download, X, Calendar, 
   Clock, Search, ChevronLeft, ChevronRight, ExternalLink, History, Upload, CheckCircle2 
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const WarrantyHub = () => {
   // --- STATES ---
@@ -11,6 +14,9 @@ const WarrantyHub = () => {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
   
   // Form States
   const [newProductName, setNewProductName] = useState('');
@@ -19,30 +25,64 @@ const WarrantyHub = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  // --- DUMMY DATA (6 cards per major state for proper layout) ---
+  // --- AUTH CHECK ---
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user ? user : null);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleOpenRegisterModal = () => {
+    if (!currentUser) {
+      alert("Please login to register a warranty.");
+      navigate('/signin'); 
+      return;
+    }
+    setIsRegisterModalOpen(true);
+  };
+
+  // --- DUMMY DATA ---
+  // Generating more cards to demonstrate pagination (9 per page)
   const [warranties, setWarranties] = useState([
-    // ACTIVE
     { id: 1, product: "MacBook Pro M3", addedOn: "04 Jan 2026", addedTime: "10:30 AM", expiry: "2027-12-12", expiryTime: "10:30 AM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=500" },
     { id: 2, product: "iPhone 15 Pro", addedOn: "04 Jan 2026", addedTime: "11:00 AM", expiry: "2026-09-20", expiryTime: "11:00 AM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=500" },
     { id: 3, product: "iPad Air", addedOn: "04 Jan 2026", addedTime: "11:30 AM", expiry: "2026-08-15", expiryTime: "11:30 AM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=500" },
     { id: 4, product: "Apple Watch S9", addedOn: "04 Jan 2026", addedTime: "12:00 PM", expiry: "2026-05-10", expiryTime: "12:00 PM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=500" },
     { id: 5, product: "AirPods Pro", addedOn: "04 Jan 2026", addedTime: "12:30 PM", expiry: "2026-03-05", expiryTime: "12:30 PM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1588423770574-91993ca5a3f2?q=80&w=500" },
     { id: 6, product: "Magic Keyboard", addedOn: "04 Jan 2026", addedTime: "01:00 PM", expiry: "2026-02-28", expiryTime: "01:00 PM", status: "ACTIVE", img: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=500" },
-    
-    // EXPIRING SOON (Within 7 days of Jan 4, 2026)
     { id: 7, product: "Sony Headphones", addedOn: "01 Jan 2026", addedTime: "09:15 AM", expiry: "2026-01-08", expiryTime: "09:15 AM", status: "EXPIRING", img: "https://images.unsplash.com/photo-1675243003000-888998246401?q=80&w=500" },
     { id: 8, product: "Logitech Mouse", addedOn: "01 Jan 2026", addedTime: "10:00 AM", expiry: "2026-01-10", expiryTime: "10:00 AM", status: "EXPIRING", img: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=500" },
-    
-    // EXPIRED
     { id: 9, product: "Samsung Monitor", addedOn: "10 Dec 2024", addedTime: "04:00 PM", expiry: "2025-12-10", expiryTime: "04:00 PM", status: "EXPIRED", img: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=500" },
     { id: 10, product: "Old Laptop", addedOn: "05 Aug 2023", addedTime: "12:30 PM", expiry: "2024-08-05", expiryTime: "12:30 PM", status: "EXPIRED", img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=500" },
   ]);
 
+  // --- PAGINATION & FILTER LOGIC ---
+  const cardsPerPage = 9;
+  
+  const filteredData = warranties.filter(item => {
+    const matchesTab = activeTab === 'ALL' || item.status === activeTab;
+    const matchesSearch = item.product.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  const totalPages = Math.ceil(filteredData.length / cardsPerPage);
+  const indexOfLastCard = currentPage * cardsPerPage;
+  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+  const currentCards = filteredData.slice(indexOfFirstCard, indexOfLastCard);
+
+  // Reset to page 1 if filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchTerm]);
+
   // --- STATS CALCULATION ---
-  const totalProtected = warranties.length;
-  const expiringSoon = warranties.filter(w => w.status === 'EXPIRING').length;
-  const expiredCount = warranties.filter(w => w.status === 'EXPIRED').length;
-  const activeCount = warranties.filter(w => w.status === 'ACTIVE').length;
+  const stats = [
+    { label: "TOTAL PROTECTED", count: warranties.length.toString().padStart(2, '0'), icon: <ShieldCheck size={20}/>, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "EXPIRING SOON", count: warranties.filter(w => w.status === 'EXPIRING').length.toString().padStart(2, '0'), icon: <Clock size={20}/>, color: "text-amber-500", bg: "bg-amber-50" },
+    { label: "ACTIVE", count: warranties.filter(w => w.status === 'ACTIVE').length.toString().padStart(2, '0'), icon: <ExternalLink size={20}/>, color: "text-emerald-500", bg: "bg-emerald-50" },
+    { label: "EXPIRED", count: warranties.filter(w => w.status === 'EXPIRED').length.toString().padStart(2, '0'), icon: <History size={20}/>, color: "text-slate-400", bg: "bg-slate-50" },
+  ];
 
   // --- HANDLERS ---
   const handleDownload = (imgUrl, fileName) => {
@@ -56,6 +96,7 @@ const WarrantyHub = () => {
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
+    if (!currentUser) return;
     if (!newProductName || !expiryDate) return;
 
     const now = new Date();
@@ -83,24 +124,18 @@ const WarrantyHub = () => {
     setIsRegisterModalOpen(false);
   };
 
-  const filteredCards = warranties.filter(item => {
-    const matchesTab = activeTab === 'ALL' || item.status === activeTab;
-    const matchesSearch = item.product.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
-
   return (
     <div className="min-h-screen bg-[#F5F7FA] pt-10 pb-10 px-6 font-sans">
       <div className="max-w-7xl mx-auto"> 
         
-        {/* --- PAGE HEADER (MATCHING IMAGE HEADING & BUTTON) --- */}
+        {/* --- PAGE HEADER --- */}
         <div className="flex justify-between items-end mb-10 border-b border-slate-200 pb-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Warranty Hub</h1>
             <p className="text-slate-500 text-sm mt-1">Manage and store your digital purchase proofs.</p>
           </div>
           <button 
-            onClick={() => setIsRegisterModalOpen(true)}
+            onClick={handleOpenRegisterModal}
             className="bg-[#061A3A] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gradient-to-br from-sky-400 via-blue-600 to-blue-900 cursor-pointer transition-all shadow-lg active:scale-95"
           >
             <Plus size={20} />
@@ -110,12 +145,7 @@ const WarrantyHub = () => {
 
         {/* --- STATS DASHBOARD --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {[
-            { label: "TOTAL PROTECTED", count: totalProtected.toString().padStart(2, '0'), icon: <ShieldCheck size={20}/>, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: "EXPIRING SOON", count: expiringSoon.toString().padStart(2, '0'), icon: <Clock size={20}/>, color: "text-amber-500", bg: "bg-amber-50" },
-            { label: "ACTIVE", count: activeCount.toString().padStart(2, '0'), icon: <ExternalLink size={20}/>, color: "text-emerald-500", bg: "bg-emerald-50" },
-            { label: "EXPIRED", count: expiredCount.toString().padStart(2, '0'), icon: <History size={20}/>, color: "text-slate-400", bg: "bg-slate-50" },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={i} className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100 flex flex-col items-start">
               <div className={`${stat.bg} ${stat.color} p-3 rounded-xl mb-4 w-fit`}>{stat.icon}</div>
               <p className="text-slate-400 text-[10px] font-black tracking-widest mb-1 uppercase">{stat.label}</p>
@@ -151,10 +181,10 @@ const WarrantyHub = () => {
           </div>
         </div>
 
-        {/* --- GRID (PY-10) --- */}
+        {/* --- GRID (MAX 9 PER PAGE) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
           <AnimatePresence mode="popLayout">
-            {filteredCards.map((item) => (
+            {currentCards.map((item) => (
               <motion.div 
                 key={item.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-white rounded-2xl overflow-hidden border border-slate-200 group relative shadow-sm hover:shadow-md transition-all h-fit"
@@ -195,9 +225,40 @@ const WarrantyHub = () => {
           </AnimatePresence>
         </div>
 
-        {/* --- REGISTER MODAL --- */}
+        {/* --- PAGINATION CONTROLS --- */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mt-12 pb-10">
+            <button 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(p => p - 1)} 
+              className="p-3 rounded-xl border border-slate-200 bg-white disabled:opacity-30 hover:bg-slate-50 transition-all cursor-pointer"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setCurrentPage(i + 1)} 
+                  className={`w-11 h-11 rounded-xl font-bold text-sm transition-all cursor-pointer ${currentPage === i + 1 ? 'bg-[#061A3A] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(p => p + 1)} 
+              className="p-3 rounded-xl border border-slate-200 bg-white disabled:opacity-30 hover:bg-slate-50 transition-all cursor-pointer"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+
+        {/* --- REGISTER MODAL (PROTECTED) --- */}
         <AnimatePresence>
-          {isRegisterModalOpen && (
+          {isRegisterModalOpen && currentUser && (
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsRegisterModalOpen(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
               <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 overflow-hidden">
