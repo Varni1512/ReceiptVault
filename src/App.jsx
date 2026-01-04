@@ -7,6 +7,8 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ScrollToTop from './components/ScrollToTop';
 import MyReceipts from './pages/MyReceipts';
+import Contact from './pages/Contact';
+import WarrantyHub from './pages/WarrantyHub';
 
 // Placeholder components (You can move these to separate files later)
 const Home = () => <div className="p-20 text-slate-800 font-bold">Home Page Content</div>;
@@ -35,8 +37,8 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/receipts" element={<MyReceipts />} />
-                  <Route path="/warranty-hub" element={<Warranty />} />
-                  <Route path="/support" element={<Support />} />
+                  <Route path="/warranty-hub" element={<WarrantyHub />} />
+                  <Route path="/support" element={<Contact />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/alerts" element={<Warranty />} />
                   <Route path="/terms" element={<TermsOfService />} />

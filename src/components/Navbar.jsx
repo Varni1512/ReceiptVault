@@ -45,7 +45,7 @@ const Navbar = () => {
 
     return (
         <nav className={`fixed top-0 w-full z-50 transition-all duration-500 px-6 py-3 
-            ${isScrolled ? 'bg-white/70 backdrop-blur-lg border-b border-slate-200/50 shadow-sm' : 'bg-transparent'}`}>
+            ${isScrolled ? 'bg-white/70 backdrop-blur-lg  shadow-sm' : 'bg-transparent'}`}>
             
             <div className="max-w-8xl mx-auto flex justify-between items-center">
                 {/* LOGO */}
@@ -73,7 +73,7 @@ const Navbar = () => {
 
                                 {/* PROFILE HOVER MENU */}
                                 <div className="relative group pt-2">
-                                    <button className="p-2 rounded-full bg-slate-900 text-white hover:bg-blue-600 transition-all">
+                                    <button className="p-2 rounded-full bg-slate-900 text-white hover:bg-gradient-to-br from-sky-400 via-blue-600 to-blue-900 transition-all">
                                         <User size={22} />
                                     </button>
 

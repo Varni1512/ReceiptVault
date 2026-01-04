@@ -41,7 +41,7 @@ const Footer = () => {
               <h4 className="text-white font-bold text-base mb-6">Quick Links</h4>
               <ul className="space-y-4 text-slate-400 text-sm">
                 <li><Link to="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
-                <li><Link to="/my-receipts" className="hover:text-blue-400 transition-colors">My Receipts</Link></li>
+                <li><Link to="/receipts" className="hover:text-blue-400 transition-colors">My Receipts</Link></li>
                 <li><Link to="/warranty-hub" className="hover:text-blue-400 transition-colors">Warranty Hub</Link></li>
                 <li><Link to="/support" className="hover:text-blue-400 transition-colors">Support</Link></li>
               </ul>
@@ -53,7 +53,6 @@ const Footer = () => {
               <ul className="space-y-4 text-slate-400 text-sm">
                 <li><Link to="/profile" className="hover:text-blue-400 transition-colors">Profile</Link></li>
                 <li><Link to="/alerts" className="hover:text-blue-400 transition-colors">Alerts</Link></li>
-                <li><Link to="/signin" className="hover:text-blue-400 transition-colors">Sign In</Link></li>
               </ul>
             </div>
 
