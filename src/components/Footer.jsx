@@ -35,7 +35,7 @@ const Footer = () => {
           </div>
 
           {/* RIGHT SIDE: 3 COLUMNS GROUPED */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 md:pl-20">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-2 md:pl-50">
             {/* COL 1 */}
             <div>
               <h4 className="text-white font-bold text-base mb-6">Quick Links</h4>
@@ -66,7 +66,7 @@ const Footer = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin size={16} className="text-blue-500 mt-1" />
-                  <span>Vadodara, Gujarat,<br/>India</span>
+                  <span>Ankleshwar, Gujarat, India</span>
                 </li>
               </ul>
             </div>
