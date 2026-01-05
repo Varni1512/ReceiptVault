@@ -119,7 +119,7 @@ const Steps = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           className="mt-20 text-center flex flex-col items-center gap-6"
         >
-          <button className="bg-[#061A3A] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-2xl shadow-blue-100 active:scale-95 cursor-pointer">
+          <button className="bg-[#061A3A] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gradient-to-br from-sky-400 via-blue-600 to-blue-900 transition-all shadow-2xl shadow-blue-100 active:scale-95 cursor-pointer">
             Secure Your First Receipt
           </button>
         </motion.div>

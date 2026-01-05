@@ -80,7 +80,7 @@ const TrustSection = () => {
               </div>
 
               {/* Text Content */}
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-3">
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-3">
                 {item.label}
               </h3>
               <p className="text-slate-500 text-sm font-bold leading-relaxed">
