@@ -9,14 +9,7 @@ import ScrollToTop from './components/ScrollToTop';
 import MyReceipts from './pages/MyReceipts';
 import Contact from './pages/Contact';
 import WarrantyHub from './pages/WarrantyHub';
-
-// Placeholder components (You can move these to separate files later)
-const Home = () => <div className="p-20 text-slate-800 font-bold">Home Page Content</div>;
-const Receipts = () => <div className="p-20 text-slate-800 font-bold">My Receipts / My Bills</div>;
-const Warranty = () => <div className="p-20 text-slate-800 font-bold">Warranty Hub Center</div>;
-const Support = () => <div className="p-20 text-slate-800 font-bold">Support & Help Desk</div>;
-const Profile = () => <div className="p-20 text-slate-800 font-bold">User Profile Settings</div>;
-const Alerts = () => <div className="p-20 text-slate-800 font-bold">Notification Alerts</div>;
+import Home from './pages/Home';
 
 const App = () => {
   return (
@@ -39,8 +32,8 @@ const App = () => {
                   <Route path="/receipts" element={<MyReceipts />} />
                   <Route path="/warranty-hub" element={<WarrantyHub />} />
                   <Route path="/support" element={<Contact />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/alerts" element={<Warranty />} />
+                  {/* <Route path="/profile" element={<Profile />} /> */}
+                  {/* <Route path="/alerts" element={<Warranty />} /> */}
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                 </Routes>
