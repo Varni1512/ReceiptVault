@@ -4,6 +4,7 @@ import Steps from '../components/Steps'
 import Features from '../components/Features'
 import TrustSection from '../components/TrustSection'
 import Testimonials from '../components/Testimonials'
+import SupportStrip from '../components/SupportStrip'
 
 const Home = () => {
   return (
@@ -13,6 +14,7 @@ const Home = () => {
       <Features />
       <TrustSection />
       <Testimonials />
+      <SupportStrip />
     </div>
   )
 }
